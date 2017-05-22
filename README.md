@@ -15,7 +15,7 @@ Array version of [IT_MyTCPAddr](http://doc.4d.com/4Dv15/4D-Internet-Commands/15/
 
 Software loopback network interfaces (``IF_TYPE_SOFTWARE_LOOPBACK``, ``IFF_LOOPBACK``) are excluded. 
 
-Link-local IPv6 addresses (with a ``%`` suffix) are excluded on Windows.
+Link-local IPv6 addresses (with a ``%`` suffix) are excluded on Windows (``IP_ADAPTER_ADDRESS_DNS_ELIGIBLE`` filter).
 
 ## Example 
 
