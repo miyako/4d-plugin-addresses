@@ -36,7 +36,7 @@ IP ADDRESS LIST (addresses;names;AF_INET6)  //IPv6 only
 ## Syntax
 
 ```
-IP ADDRESS LIST (addresses;family)
+IP ADDRESS LIST (addresses;names;family)
 ```
 
 Parameter|Type|Description
