@@ -29,7 +29,7 @@ IP ADDRESS LIST (addresses;names;AF_INET)  //IPv4 only
 IP ADDRESS LIST (addresses;names;AF_INET6)  //IPv6 only
 ```
 
-![1](https://cloud.githubusercontent.com/assets/1725068/26291496/9e030db8-3ee9-11e7-9bba-647183ba03c2.png)
+![2](https://cloud.githubusercontent.com/assets/1725068/26295099/1ba062d4-3f03-11e7-9514-fb0eea1f7588.png)
 
 ## Syntax
 
