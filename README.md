@@ -13,7 +13,9 @@ List IP addresses of current host
 
 Array version of [IT_MyTCPAddr](http://doc.4d.com/4Dv15/4D-Internet-Commands/15/IT-MyTCPAddr.301-2397945.en.html)
 
-Software loopback network interfaces (``IF_TYPE_SOFTWARE_LOOPBACK``, ``IFF_LOOPBACK``) are not included. 
+Software loopback network interfaces (``IF_TYPE_SOFTWARE_LOOPBACK``, ``IFF_LOOPBACK``) are excluded. 
+
+Link-local IPv6 addresses (with a ``%`` suffix) are excluded on Windows.
 
 ## Example 
 
