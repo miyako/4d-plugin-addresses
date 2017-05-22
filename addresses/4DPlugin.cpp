@@ -93,39 +93,34 @@ void CommandDispatcher (PA_long32 pProcNum, sLONG_PTR *pResult, PackagePtr pPara
 typedef enum
 {
 	AddressTypeBoth     = 0,
-	AddressTypeIPv4     = 1,
+	AddressTypeIPv4     = 2,
 	AddressTypeIPv6     = 23
 } address_type_t;
 
 #if VERSIONWIN
 #include <iphlpapi.h>
 #pragma comment(lib, "IPHLPAPI.lib")
+#else
+#include <SystemConfiguration/SCNetworkConfiguration.h>
 #endif
 
 void IP_ADDRESS_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 {
 	ARRAY_TEXT Param1;
-	C_LONGINT Param2;
+	ARRAY_TEXT Param2;
+	C_LONGINT Param3;
 
-	Param2.fromParamAtIndex(pParams, 2);
-	
+	Param3.fromParamAtIndex(pParams, 3);
 	
 #if VERSIONWIN
-	DWORD dwSize = 0;
-	DWORD dwRetVal = 0;
-	unsigned int i = 0;
-	// Set the flags to pass to GetAdaptersAddresses
 	ULONG flags = GAA_FLAG_INCLUDE_PREFIX| GAA_FLAG_SKIP_FRIENDLY_NAME;
-	// default to unspecified address family (both)
-	ULONG family = family = (ULONG)Param2.getIntValue();
+	ULONG family = family = (ULONG)Param3.getIntValue();
 	switch (family)
 	{
 	case AddressTypeBoth:
 	case AddressTypeIPv6:
-		break;
 	case AddressTypeIPv4:
-		family = AF_INET;//my bad!
-		break;
+			break;
 	default:
 		family = 1;//invalid flag
 		break;
@@ -150,6 +145,8 @@ void IP_ADDRESS_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 				{
 					if (pCurrAddresses->IfType != IF_TYPE_SOFTWARE_LOOPBACK)
 					{
+						PWCHAR friendlyName = pCurrAddresses->FriendlyName;
+						
 						for (pUnicast = pCurrAddresses->FirstUnicastAddress; pUnicast != NULL; pUnicast = pUnicast->Next)
 						{
 							if (pUnicast->Flags & IP_ADAPTER_ADDRESS_DNS_ELIGIBLE)
@@ -161,9 +158,11 @@ void IP_ADDRESS_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 									pUnicast->Address.iSockaddrLength,
 									(char *)&addrbuf[0], buflen, NULL, 0, NI_NUMERICHOST);
 								if (!Param1.getSize()) Param1.setSize(1);
+								if (!Param2.getSize()) Param2.setSize(1);
 								CUTF8String address = (const uint8_t *)&addrbuf[0];
 								Param1.appendUTF8String(&address);
-
+								CUTF16String name = (const PA_Unichar *)friendlyName;
+								Param2.appendUTF16String(&name);
 							}
 						}
 					}
@@ -172,7 +171,10 @@ void IP_ADDRESS_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 		}
 	}
 #else
-	address_type_t family = (address_type_t)Param2.getIntValue();
+	
+	NSArray * network_interfaces = (NSArray *)SCNetworkInterfaceCopyAll();
+	
+	address_type_t family = (address_type_t)Param3.getIntValue();
 	struct ifaddrs *interfaces;
 	
 	if (!getifaddrs(&interfaces))
@@ -191,25 +193,58 @@ void IP_ADDRESS_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 						inet_ntop(addr->sin_family, &(addr->sin_addr), ip4Address, INET_ADDRSTRLEN);
 						
 						if (!Param1.getSize()) Param1.setSize(1);
+						if (!Param2.getSize()) Param2.setSize(1);
 						CUTF8String address = (const uint8_t *)ip4Address;
 						Param1.appendUTF8String(&address);
+						CUTF8String name = (const uint8_t *)interface->ifa_name;
+						Param2.appendUTF8String(&name);
+						
 					}
 				}else if (addr && addr->sin_family == PF_INET6)
 				{
 					if ((family == AddressTypeBoth) || (family == AddressTypeIPv6))
 					{
 						char ip6Address[INET6_ADDRSTRLEN];
-						inet_ntop( addr->sin_family, &(addr->sin_addr), ip6Address, INET6_ADDRSTRLEN );
+						inet_ntop(addr->sin_family, &(addr->sin_addr), ip6Address, INET6_ADDRSTRLEN);
 						if (!Param1.getSize()) Param1.setSize(1);
+						if (!Param2.getSize()) Param2.setSize(1);
 						CUTF8String address = (const uint8_t *)ip6Address;
 						Param1.appendUTF8String(&address);
+						NSString *ifa_name = [[NSString alloc]initWithUTF8String:(const char *)interface->ifa_name];
+						NSUInteger i = [network_interfaces indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop)
+						{
+							SCNetworkInterfaceRef network_interface = (SCNetworkInterfaceRef)obj;
+							
+							NSString *bsd_name = (NSString *)SCNetworkInterfaceGetBSDName(network_interface);
+							if(bsd_name)
+							{
+								if ([bsd_name isEqualToString:ifa_name])
+								{
+									return YES;
+								}
+							}
+							return NO;
+						}];
+						
+						if(NSNotFound != i)
+						{
+							NSString *displayName = (NSString *)SCNetworkInterfaceGetLocalizedDisplayName((SCNetworkInterfaceRef)[network_interfaces objectAtIndex:i]);
+							Param2.appendUTF16String(displayName);
+						}else
+						{
+							Param2.appendUTF16String(ifa_name);
+						}
+						[ifa_name release];
 					}
 				}
 			}
 		}
 	}
 	//credit: http://stackoverflow.com/questions/3266428/accessing-ip-address-with-nshost
+	
+	[network_interfaces release];
 #endif
 	Param1.toParamAtIndex(pParams, 1);
+	Param2.toParamAtIndex(pParams, 2);
 }
 

@@ -90,7 +90,7 @@
 		</data>
 		<key>Resources/Documentation/index.html</key>
 		<data>
-		Xe9so4grpp7vuqEENXcNzaHLo3Q=
+		wcOR5/h0NgCzQcw291ENBvLGktQ=
 		</data>
 		<key>Resources/Documentation/styles/common.css</key>
 		<data>
@@ -111,7 +111,7 @@
 		</data>
 		<key>Resources/addresses.rsrc</key>
 		<data>
-		cg6QlBdy+kPboVBOddJlov9K9PA=
+		UqAqmGZMULXHDf12kGlooF4hKxE=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -371,11 +371,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Xe9so4grpp7vuqEENXcNzaHLo3Q=
+			wcOR5/h0NgCzQcw291ENBvLGktQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			2eq2orAziMpZLSeia/4xR4yR8rjIgsERIZO84uFvC8Q=
+			a7J/dQ+RBvmv4HcIrgzeaesBPKeEX7nyLmkcj7rebmQ=
 			</data>
 		</dict>
 		<key>Resources/Documentation/styles/common.css</key>
@@ -417,33 +417,33 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			cg6QlBdy+kPboVBOddJlov9K9PA=
+			UqAqmGZMULXHDf12kGlooF4hKxE=
 			</data>
 			<key>hash2</key>
 			<data>
-			JAnDicWkrI8IBMmNha0XuQ+6vXzRFKhuXJJMD9yku0U=
+			LiEFvEWoMgMt3tXCYJB8QpYFWMZ4kBmIFeyqYPKOm2k=
 			</data>
 		</dict>
 		<key>Windows/addresses.4DX</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			8WH79l2tgViHfCYSUBu+HCIQ5Es=
+			EZY3J4YwiCnT/zCvU+DNT6HBKSc=
 			</data>
 			<key>hash2</key>
 			<data>
-			rp5mwPoToTOMBrO5g9ATVRBDkkR1XpJE6MF06FX5mo0=
+			oXuqBtm1jjv99oNWOiDwPvuY4YJRViZ1i22OGBoaM2o=
 			</data>
 		</dict>
 		<key>Windows/addresses.RSR</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			qPgsztVAwT4pUsoGbpn3cLdMa0U=
+			Id6R8V6wjpDEh7nJXY6+jh/9q/o=
 			</data>
 			<key>hash2</key>
 			<data>
-			7+vSi4PG9p7rOt76bowZKaSChAFnkjsiH0aKBfh9V7M=
+			la7P4uxAldRvCOS9h7lEdRF/SqBmeTVEcmAuc1iUSKU=
 			</data>
 		</dict>
 		<key>Windows/addresses.html</key>
@@ -461,22 +461,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			r1aAHLsl1HqPOxOjnnlVMBT8weQ=
+			wYvZBX23EB6Jdb0hi4rXbPz6X70=
 			</data>
 			<key>hash2</key>
 			<data>
-			D81BlAXC8IYBjKsGDu0nx8Zm3OxlDG6/r2pFvj/FY7A=
+			566AwLOsGGNpiXgLRtMoB1tCWX67RhTcVAqBu5clmwU=
 			</data>
 		</dict>
 		<key>Windows64/addresses.RSR</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			qPgsztVAwT4pUsoGbpn3cLdMa0U=
+			Id6R8V6wjpDEh7nJXY6+jh/9q/o=
 			</data>
 			<key>hash2</key>
 			<data>
-			7+vSi4PG9p7rOt76bowZKaSChAFnkjsiH0aKBfh9V7M=
+			la7P4uxAldRvCOS9h7lEdRF/SqBmeTVEcmAuc1iUSKU=
 			</data>
 		</dict>
 		<key>Windows64/addresses.html</key>
