@@ -17,12 +17,16 @@ Software loopback network interfaces (``IF_TYPE_SOFTWARE_LOOPBACK``, ``IFF_LOOPB
 
 Link-local IPv6 addresses (with a ``%`` suffix) are excluded on Windows (``IP_ADAPTER_ADDRESS_DNS_ELIGIBLE`` filter).
 
+On macOS, the localised display name (``SCNetworkInterfaceGetLocalizedDisplayName``) or the BSD name (``ifaddrs.ifa_name``) is returned.
+
+On WIndows, the friendly name (``IP_ADAPTER_ADDRESSES.FriendlyName``) is returned.
+
 ## Example 
 
 ```
-IP ADDRESS LIST ($addresses;AF_UNSPEC)
-IP ADDRESS LIST ($addresses;AF_INET)  //IPv4 only
-IP ADDRESS LIST ($addresses;AF_INET6)  //IPv6 only
+IP ADDRESS LIST (addresses;names;AF_UNSPEC)
+IP ADDRESS LIST (addresses;names;AF_INET)  //IPv4 only
+IP ADDRESS LIST (addresses;names;AF_INET6)  //IPv6 only
 ```
 
 ![1](https://cloud.githubusercontent.com/assets/1725068/26291496/9e030db8-3ee9-11e7-9bba-647183ba03c2.png)
@@ -36,4 +40,5 @@ IP ADDRESS LIST (addresses;family)
 Parameter|Type|Description
 ------------|------------|----
 addresses|ARRAY TEXT|
+names|ARRAY TEXT|
 family|LONGINT|
