@@ -28,7 +28,7 @@ On WIndows, the friendly name (``IP_ADAPTER_ADDRESSES.FriendlyName``) is returne
 ## Syntax
 
 ```
-addresses:=IP ADDRESS LIST (family)
+addresses:=IP Address list (family)
 ```
 
 Parameter|Type|Description
