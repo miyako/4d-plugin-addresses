@@ -20,7 +20,7 @@ bool IsProcessOnExit()
 	PA_long32 state, time;
 	PA_GetProcessInfo(PA_GetCurrentProcessNumber(), name, &state, &time);
 	CUTF16String procName(name.getUTF16StringPtr());
-	CUTF16String exitProcName((PA_Unichar *)"$\0x\0x\0\0\0");
+	CUTF16String exitProcName((const PA_Unichar *)u"$xx");
 	return (!procName.compare(exitProcName));
 }
 
@@ -113,8 +113,8 @@ void IP_ADDRESS_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 	Param3.fromParamAtIndex(pParams, 3);
 	
 #if VERSIONWIN
-	ULONG flags = GAA_FLAG_INCLUDE_PREFIX| GAA_FLAG_SKIP_FRIENDLY_NAME;
-	ULONG family = family = (ULONG)Param3.getIntValue();
+	ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
+	ULONG family = (ULONG)Param3.getIntValue();
 	switch (family)
 	{
 	case AddressTypeBoth:
@@ -154,15 +154,18 @@ void IP_ADDRESS_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 								size_t buflen = pUnicast->Address.lpSockaddr->sa_family == AF_INET ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN;
 								std::vector<uint8_t>addrbuf(buflen);
 
-								getnameinfo(pUnicast->Address.lpSockaddr,
+								int gniResult = getnameinfo(pUnicast->Address.lpSockaddr,
 									pUnicast->Address.iSockaddrLength,
 									(char *)&addrbuf[0], buflen, NULL, 0, NI_NUMERICHOST);
-								if (!Param1.getSize()) Param1.setSize(1);
-								if (!Param2.getSize()) Param2.setSize(1);
-								CUTF8String address = (const uint8_t *)&addrbuf[0];
-								Param1.appendUTF8String(&address);
-								CUTF16String name = (const PA_Unichar *)friendlyName;
-								Param2.appendUTF16String(&name);
+								if (gniResult == 0)
+								{
+									if (!Param1.getSize()) Param1.setSize(1);
+									if (!Param2.getSize()) Param2.setSize(1);
+									CUTF8String address = (const uint8_t *)&addrbuf[0];
+									Param1.appendUTF8String(&address);
+									CUTF16String name = (const PA_Unichar *)friendlyName;
+									Param2.appendUTF16String(&name);
+								}
 							}
 						}
 					}
@@ -239,6 +242,7 @@ void IP_ADDRESS_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 				}
 			}
 		}
+		freeifaddrs(interfaces);
 	}
 	//credit: http://stackoverflow.com/questions/3266428/accessing-ip-address-with-nshost
 	
