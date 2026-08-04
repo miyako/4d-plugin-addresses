@@ -60,8 +60,32 @@
 #include "ARRAY_DATE.h"
 
 //some external libraries assume first load; include this file after them
+//
+// Project-specific patch (round 2): the previous fix here (defining
+// WIN32_LEAN_AND_MEAN up top) had zero effect on the actual CI failure --
+// confirmed by diffing the built commit's error output against the prior
+// run's, byte-for-byte identical. That ruled out "windows.h processed
+// before winsock2.h" as the mechanism, since WIN32_LEAN_AND_MEAN only
+// changes what <windows.h> pulls in once it's included -- it can't matter
+// if this block is being skipped for a different reason.
+//
+// The likely real cause: Flags.h and/or PublicTypes.h (included just
+// above, neither provided alongside this SDK so this isn't fully
+// confirmed) probably define _WINDOWS_ themselves as a plain platform
+// flag, without ever actually including <windows.h>. That would make the
+// "#ifndef _WINDOWS_" guard below read as "already loaded" and skip this
+// entire block outright -- meaning winsock2.h/ws2tcpip.h/windows.h/
+// iphlpapi.h/icmpapi.h are never included in this translation unit at
+// all, which matches every symptom (identifiers missing, no redefinition
+// errors, no file-not-found errors).
+//
+// Fix: stop keying this decision off _WINDOWS_, a macro this SDK doesn't
+// own and evidently can't rely on here. Use a private sentinel instead so
+// this block's own state is tracked by this header, not by whatever
+// Flags.h/PublicTypes.h do with _WINDOWS_.
 #if VERSIONWIN
-#ifndef _WINDOWS_
+#ifndef __4DPLUGINAPI_WINSOCK_LOADED__
+#define __4DPLUGINAPI_WINSOCK_LOADED__
 //need to load winsock2 before windows
 //BSD wrappers
 #define close closesocket
