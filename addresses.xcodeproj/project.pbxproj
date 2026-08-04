@@ -341,7 +341,7 @@
 				TargetAttributes = {
 					8D01CCC60486CAD60068D4B7 = {
 						DevelopmentTeam = Y69CWUC25B;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -431,8 +431,8 @@
 			buildSettings = {
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
-				CODE_SIGN_STYLE = Manual;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUGGING_SYMBOLS = YES;
@@ -478,8 +478,8 @@
 			buildSettings = {
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
-				CODE_SIGN_STYLE = Manual;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEPLOYMENT_LOCATION = NO;
@@ -522,8 +522,8 @@
 			buildSettings = {
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
-				CODE_SIGN_STYLE = Manual;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = NO;
 				DEVELOPMENT_TEAM = Y69CWUC25B;
@@ -569,7 +569,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OBJROOT = "$(SRCROOT)/build";
 				SDKROOT = macosx;
-				SYMROOT = "$(SRCROOT)/$(PRODUCT_NAME).4dbase/Plugins";
+				SYMROOT = "$(SRCROOT)/addresses.4dbase/Plugins";
 			};
 			name = Development;
 		};
@@ -584,7 +584,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OBJROOT = "$(SRCROOT)/build";
 				SDKROOT = macosx;
-				SYMROOT = "$(SRCROOT)/$(PRODUCT_NAME).4dbase/Plugins";
+				SYMROOT = "$(SRCROOT)/addresses.4dbase/Plugins";
 			};
 			name = Deployment;
 		};
@@ -597,7 +597,7 @@
 				GCC_VERSION = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				SDKROOT = macosx;
-				SYMROOT = "$(SRCROOT)/$(PRODUCT_NAME).4dbase/Plugins";
+				SYMROOT = "$(SRCROOT)/addresses.4dbase/Plugins";
 			};
 			name = Default;
 		};
