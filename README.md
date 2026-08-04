@@ -111,15 +111,15 @@ End if
 // All addresses
 ARRAY TEXT($addresses;0)
 ARRAY TEXT($names;0)
-IP ADDRESS LIST($addresses;$names;0)
+IP ADDRESS LIST($addresses;$names;AF_UNSPEC)
 
 // IPv4 only
 ARRAY TEXT($ipv4;0)
 ARRAY TEXT($ipv4Names;0)
-IP ADDRESS LIST($ipv4;$ipv4Names;2)
+IP ADDRESS LIST($ipv4;$ipv4Names;AF_INET)
 
 // IPv6 only
 ARRAY TEXT($ipv6;0)
 ARRAY TEXT($ipv6Names;0)
-IP ADDRESS LIST($ipv6;$ipv6Names;23)
+IP ADDRESS LIST($ipv6;$ipv6Names;AF_INET6)
 ```
