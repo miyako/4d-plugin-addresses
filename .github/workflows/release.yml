@@ -83,21 +83,6 @@ jobs:
         with:
           ref: ${{ needs.version.outputs.tag }}
 
-      # manifest.json is committed to this repo with the executable bit set
-      # (mode 755 instead of 644). A plain resource file with the executable
-      # bit causes Xcode's own auto-codesign build phase (which runs as part
-      # of `xcodebuild build` below, before this workflow's own later
-      # `codesign` step ever executes) to treat it as a nested code object
-      # requiring its own independent signature -- which it obviously
-      # doesn't have -- failing with "code object is not signed at all".
-      # Clearing the bit here, on the fresh checkout, fixes it without
-      # requiring a git file-mode change committed to the repo itself.
-      - name: fix manifest.json permissions
-        run: |
-          set -euo pipefail
-          chmod 644 "addresses.4dbase/Plugins/${{ env.PRODUCT_NAME }}.bundle/Contents/manifest.json"
-          chmod 644 manifest.json
-
       - name: download windows binaries
         uses: actions/download-artifact@v4
         with:
