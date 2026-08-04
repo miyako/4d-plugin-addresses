@@ -11,6 +11,29 @@
 #ifndef __4DPLUGINAPI__
 #define __4DPLUGINAPI__
 
+// Project-specific patch: force WIN32_LEAN_AND_MEAN before any other header
+// in this translation unit can pull in <windows.h>. Without this, if
+// <windows.h> is included (directly or transitively, e.g. via Flags.h/
+// PublicTypes.h) before the winsock2-first block below runs, it drags in
+// the legacy <winsock.h>, which sets the _WINDOWS_ guard early and causes
+// the "#ifndef _WINDOWS_" block further down to be skipped entirely --
+// silently dropping winsock2.h/ws2tcpip.h/windows.h/iphlpapi.h/icmpapi.h
+// from the translation unit. WIN32_LEAN_AND_MEAN stops <windows.h> from
+// pulling in the legacy Winsock headers at all, so the outcome no longer
+// depends on include order.
+// Residual risk: WIN32_LEAN_AND_MEAN also strips some other <windows.h>
+// subsystems (Cryptography, DDE, RPC, some Shell APIs) that this project
+// doesn't appear to use, but that hasn't been verified against every header
+// in this SDK, and this fix has not been compile-tested in this environment.
+// NOTE: not gated on VERSIONWIN -- that macro is defined inside Flags.h,
+// which is only included *after* this point, so a "#if VERSIONWIN" guard
+// here would always evaluate false and silently no-op the fix. Defining
+// WIN32_LEAN_AND_MEAN unconditionally is harmless on non-Windows platforms,
+// since <windows.h> is never included there regardless.
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include "Flags.h"
 #include "PublicTypes.h"
 
