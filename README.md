@@ -13,6 +13,69 @@ The `addresses` plugin lists the machine's active (non-loopback) network interfa
 
 **Platforms:** Windows, macOS
 
+## Source version and manual publication
+
+**Bump version** is a manual, source-only patch/minor/major operation on the
+explicitly selected branch. It checks out the dispatch's immutable `github.sha`,
+requires a clean checkout and the exact remote branch tip, and commits only
+`addresses.xcodeproj/project.pbxproj`, `Info.plist`, and
+`English.lproj/InfoPlist.strings`. The mandatory executable pre-push guard
+checks Git's advertised old SHA against the selected SHA, the literal new SHA
+against HEAD and its single direct parent, the exact target, and exactly one
+update. A moved, rewound, deleted or already-updated branch fails closed;
+missing/nonexecutable guards are checked initially and immediately before push.
+The nonforce push disables following tags in both configuration and arguments.
+No tag is created, and Build is not automatically triggered.
+
+The existing workflow header promised coordinated marketing/current/plist
+versions. Marketing settings and the source plist establish **1.1.11**:
+`1a7fe1c` advanced both from 1.1.10 but left six current settings at 1.1.9;
+the localized source still said 1.0. Those stale source fields are repaired to
+1.1.11 without incrementing the release version. Future operations require a
+strict `X.Y.Z` shared by all six marketing and six current settings, applicable
+plist keys and localized display strings. Valid Xcode references, absent
+`CFBundleVersion`, BOM, line endings, formatting and file modes are preserved.
+Prebuilt bundles, native dependencies, 4D projects, schema/counters and resources
+are not version authorities and are never rewritten.
+
+Run **Build** manually on the intended branch/commit after reviewing the source
+bump. Build has **zero dispatch inputs**, no push/tag trigger and no branch-only
+restriction; every checkout uses the same `github.sha`. Repository-wide
+`release-publication` concurrency serializes publication across branches
+without cancelling a running build. A clean preflight validates source metadata,
+the remote tag, and every page of authenticated releases (including drafts).
+After Windows x64, universal macOS, bundle merging, signing verification, ZIP
+and DMG notarization, and DMG stapling succeed, publication repeats those checks.
+Auth/network errors, 404s, malformed entries and later-page failures stop rather
+than imply availability.
+
+Publication creates `vX.Y.Z` at that exact SHA using create-only `POST git/refs`,
+which rejects even a concurrent same-SHA tag, then verifies the remote tag SHA.
+It creates a new public, non-prerelease GitHub release with the same name/tag,
+explicit target SHA and the original empty notes policy, then separately uploads
+`addresses-X.Y.Z.zip` and `addresses-X.Y.Z.dmg` to the returned new release ID.
+There is no update, clobber, deletion, rollback or retry.
+
+**Failure recovery:** any created tag, release and successfully uploaded assets
+are retained, including when a later POST/upload fails or its response is lost
+or malformed. Inspect the run log and authenticated remote state before a
+maintainer takes any explicit recovery action. Rerunning the same version is
+deliberately blocked; the workflows never remove partial state for you.
+
+Native settings and secret names are unchanged: Windows uses MSBuild/v143 and
+the Windows 10 SDK with IPHLPAPI; macOS uses system frameworks, the existing
+deployment settings and `arm64 x86_64`. Signing still requires
+`APPLE_DEVELOPER_ID_CERTIFICATE`, `APPLE_DEVELOPER_ID_CERTIFICATE_PASSWORD`,
+`KEYCHAIN_PASSWORD`, `NOTARYTOOL_APPLE_ID`, `NOTARYTOOL_TEAM_ID`, and
+`NOTARYTOOL_PASSWORD`. The intentional static `test/Plugins` packaging layout
+and Windows output normalization remain, although checked-in examples and
+MSBuild output live under `addresses.4dbase`. Hosted SDK/toolchain availability
+and Apple credentials remain native prerequisites, not bypassed gates.
+
+Lifecycle regressions run without native builds, signing or live publication:
+`python3 -B -m unittest discover -s .github/tests -v`.
+Workflow syntax can be checked with `actionlint`.
+
 ---
 
 ## Requirements & platform notes
