@@ -76,6 +76,102 @@ Lifecycle regressions run without native builds, signing or live publication:
 `python3 -B -m unittest discover -s .github/tests -v`.
 Workflow syntax can be checked with `actionlint`.
 
+## Native ownership maintenance
+
+The bounded audit baseline is `8a3b5ec7866c19c80611a23984ff657c787a6436`.
+Both `manifest.json` and the checked-in bundle's resource manifest declare
+`IP ADDRESS LIST(&Y;&Y;&L)`. `&Y` describes array capability, not ownership.
+The actual entry is `FourDPackex` (also named by `4DPluginAPI.def`), through
+`PluginMain` and `CommandDispatcher`, whose only command selector is 1.
+Windows startup/close selectors additionally use `IsProcessOnExit` and
+`C_TEXT`; macOS interface names use explicitly released Objective-C owners.
+The audit does not read the sample database, contacts, or address books.
+
+All tracked native surfaces were inventoried, including dormant helpers:
+
+| Surface | Build/include reachability and ownership conclusion |
+|---|---|
+| `4DPlugin.cpp`, `4DPlugin.h`, `4D Plugin_Prefix.pch` | Entry, dispatcher, OS adapter enumeration and Carbon prefix. Active outputs use `ARRAY_TEXT`; the filter uses `C_LONGINT`. No direct string descriptor transfer or callback. |
+| `Classes/ARRAY_TEXT.{cpp,h}` | Copies borrowed parameter content into C++ strings before output mutation. Creates a separate descriptor for each output element and transfers it without subsequent disposal. Replacement, element zero, shrink and final clear retain their SDK behavior. |
+| `Classes/C_TEXT.{cpp,h}` | Owns independent C++ text; parameter and result setters use `PA_SetUnistring`, not descriptor transfer. Scalar input is copied. |
+| `Classes/C_PICTURE.{cpp,h}` | Compiled but not called by the dispatcher. Fixed path double cleanup, overwritten empty string/picture allocations, missing picture output/temporary releases, and a byte-count-as-UTF-16-length overread. Retained pictures and returned owning handoffs remain valid after local cleanup. |
+| `Classes/C_POINTER.{cpp,h}` | Compiled, dormant metadata wrapper; `PA_GetPointerValue` metadata semantics remain deferred (see below). |
+| `Classes/C_BLOB.{cpp,h}` | Compiled bytes/handle owner and text encoding helpers; C++ text copies, no `PA_Unistring` transfers. |
+| `Classes/C_DATE.{cpp,h}`, `C_INTEGER.{cpp,h}`, `C_LONGINT.{cpp,h}`, `C_REAL.{cpp,h}`, `C_TIME.{cpp,h}` | Compiled scalar/value helpers; no owned string transfers. |
+| `Classes/ARRAY_BOOLEAN.{cpp,h}`, `ARRAY_DATE.{cpp,h}`, `ARRAY_INTEGER.{cpp,h}`, `ARRAY_LONGINT.{cpp,h}`, `ARRAY_REAL.{cpp,h}`, `ARRAY_TIME.{cpp,h}` | Compiled numeric/date arrays; no text descriptor transfers. |
+| `Classes/C_TYPES.h` | Shared C++ text/array typedefs and platform includes. |
+| `4DPluginAPI.{c,h,def}`, `Flags.h`, `PrivateTypes.h`, `PublicTypes.h`, `EntryPoints.h` | Bundled SDK/ABI contract evidence only; unchanged. No object-property/collection APIs in this copy, and no first-party JSON Parse callsite. |
+
+Paths under `Classes/` above are relative to `4D Plugin API/`.
+The Xcode Sources phase and **both** `addresses.vcxproj` and
+`addresses.vc10.vcxproj` compile all 16 wrapper implementations, the SDK and
+`4DPlugin.cpp`; dormant code is not excluded. Xcode uses Objective-C++ for
+the native sources; the Windows projects explicitly compile the SDK and
+wrappers as C++. All native headers are included directly or through
+`4DPluginAPI.h`. The platform frameworks are external, not repair targets.
+
+**Verified bundled contracts:** the SDK array setter accepts Unicode arrays
+with non-null data, indices `0..fNbElements`, and a non-null descriptor pointer.
+It disposes the replaced element and shallow-transfers the input; rejection
+retains caller ownership. The array getter borrows its descriptor.
+`PA_SetStringVariable` and `PA_SetPictureVariable` shallow-assign and do not
+clear the old value. Consequently, input arguments immediately assigned a
+new owner now start Undefined rather than allocating an empty value to lose.
+Picture output arguments still start with an owned empty picture.
+`PA_DuplicatePicture(p, 1)` retains; clearing the source argument after
+`setPicture` releases only that argument's ownership. `setBytes` releases its
+created temporary after retaining it. Copy/gray/thumbnail results deliberately
+detach their owning picture before argument cleanup. `PA_ReturnString`
+forwards to `PA_SetUnistring`, a content setter, unlike array transfer.
+`PA_ConvertCharsetToCharset` returns **bytes**; `createCopy` now divides by
+`sizeof(PA_Unichar)` before constructing a length-counted UTF-16 string.
+
+SDK provenance is the bundled file history, last changed at
+`17453c5c0b2b1918c6cbef6f1085bb28a0243753`, not an established upstream
+release. SHA-256 of `4DPluginAPI.c` is
+`2721c3d4338cc2a350599ffcee2a8008abaa756acfd45dd710720c64ca8c8ce3`;
+the header is
+`4808a5a7c340c458c1a394a5e3a40deb0aa813176332c2e1758881f54de62390`.
+The source's v14 and header's v13 comments do not establish release identity.
+Guidance was checked against `miyako/skills` revision
+`e6b492fcb81e5e1a7f7db723594b420e63bf6eb9` (merged guidance
+`miyako/skills#69` and `miyako/skills#71`).
+
+Run `python3 .github/tests/run_native_ownership.py --verify-baseline` on
+macOS with the existing Xcode command-line toolchain. This compiles **all
+actual native implementations and the complete unchanged bundled SDK**
+against an engine-boundary shim, under ASan/UBSan, in disposable temporary
+directories. The exact same harness verifies the immutable baseline fails:
+path double disposal and leaked output; `setBytes`, gray, properties and
+thumbnail reference imbalances; and `createCopy` heap-buffer-overflow and
+overwritten empty-string ownership. The unchanged text-array
+control passes the baseline. Fixed-source cases cover ASCII, BMP,
+supplementary UTF-16 and empty content, allocated/null empty descriptors,
+independent arrays and elements, borrowed copies, accepted/rejected transfers,
+replacement/shrink/clear, scalar aliases/content setters, command success/error,
+owning picture handoff survival, exact conversion byte counts and capacity
+canaries. Every case requires zero outstanding strings, handles and picture
+references; macOS LSan is not required.
+
+The **Native ownership** pull-request workflow runs only this unsigned
+executable regression and the existing lifecycle tests. It never invokes
+the release/bump workflows, Xcode packaging, signing, notarization, binary
+publication, or actual adapter enumeration.
+
+**Deferred evidence gaps:** `C_POINTER::getVariable` consumes variable-definition
+metadata while the general getter comment says to clear the returned value;
+blindly clearing or relabeling this metadata is not justified. SDK-only
+application-path output and `PA_GetPictureData` format-string ownership are
+not established, so no guessed disposal was added. The shim uses a failed
+picture-data lookup with an unusable descriptor and does not read or clear
+that failed output. The five picture command IDs are procedures; their ignored
+`PA_Variable` return is not proven to contain an owning value. No async or
+object/collection handoff callsites exist here. SDK resize allocation-failure
+count corruption, allocation-failure handling and unrelated wrapper hardening
+are outside this bounded fix; normal-array tests do not certify OOM behavior.
+No actual 4D host, Windows execution, packaged binary, or original Poppler
+crash is certified by this macOS synthetic-data harness.
+
 ---
 
 ## Requirements & platform notes
